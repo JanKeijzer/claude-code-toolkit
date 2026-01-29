@@ -5,7 +5,7 @@ A collection of [Claude Code](https://docs.anthropic.com/en/docs/claude-code) sk
 ## Installation
 
 ```bash
-git clone https://github.com/<your-username>/claude-code-skills.git ~/Projects/claude-code-skills
+git clone https://github.com/JanKeijzer/claude-code-skills.git ~/Projects/claude-code-skills
 ln -s ~/Projects/claude-code-skills ~/.claude/skills
 ```
 
