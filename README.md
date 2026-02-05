@@ -1,15 +1,81 @@
-# Claude Code Skills
+# Claude Code Toolkit
 
-A collection of [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills for GitHub issue management, PR workflows, and development utilities.
+A collection of [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills, a global CLAUDE.md, and a project template for GitHub issue management, PR workflows, and development utilities.
+
+## Philosophy
+
+This toolkit separates concerns into two layers:
+
+- **Skills** define **procedures** — the steps to follow when performing a task (e.g., how to implement an issue, how to decompose work)
+- **CLAUDE.md** defines **policies** — the standards and conventions that apply across all work (e.g., test quality, code quality, communication preferences)
+
+Skills reference policies from CLAUDE.md rather than duplicating them.
 
 ## Installation
 
 ```bash
-git clone https://github.com/JanKeijzer/claude-code-skills.git ~/Projects/claude-code-skills
-ln -s ~/Projects/claude-code-skills ~/.claude/skills
+git clone https://github.com/JanKeijzer/claude-code-toolkit.git ~/Projects/claude-code-toolkit
+cd ~/Projects/claude-code-toolkit
+./install.sh
 ```
 
+This creates two symlinks:
+- `~/.claude/skills` → `skills/` (all skills auto-discovered)
+- `~/.claude/CLAUDE.md` → `claude-md/global.md` (global policies)
+
 Restart Claude Code after installation. Skills are auto-discovered from `~/.claude/skills/*/SKILL.md`.
+
+### Project Template
+
+To set up a new project with a CLAUDE.md:
+
+```bash
+cp ~/Projects/claude-code-toolkit/claude-md/project-template.md /path/to/your/project/CLAUDE.md
+```
+
+Then fill in the sections relevant to your project.
+
+## Repository Structure
+
+```
+claude-code-toolkit/
+├── skills/                    ← skill definitions (procedures)
+│   ├── implement/
+│   ├── decompose/
+│   ├── bug/
+│   ├── cleanup/
+│   ├── extend/
+│   ├── finish/
+│   ├── help-issues/
+│   ├── ss/
+│   ├── sync-closes/
+│   └── update-tracking/
+├── claude-md/                 ← CLAUDE.md files (policies)
+│   ├── global.md              ← global policies → ~/.claude/CLAUDE.md
+│   └── project-template.md    ← template for project-specific CLAUDE.md
+├── install.sh                 ← creates symlinks
+└── README.md
+```
+
+## CLAUDE.md Files
+
+### Global (`claude-md/global.md`)
+
+Symlinked to `~/.claude/CLAUDE.md`, applies to all projects. Contains:
+
+- **General Preferences** — language and communication conventions
+- **Test Quality Policy** — mocks, fixtures, test value standards
+- **Anti-Patterns** — things to always avoid
+- **Code Quality** — verification-before-coding rules
+
+### Project Template (`claude-md/project-template.md`)
+
+Copy to a project root as `CLAUDE.md` and fill in:
+
+- Project overview, tech stack, project structure
+- Development commands (run, test, lint, validate)
+- API and database conventions
+- Project-specific patterns and deployment notes
 
 ## All Skills
 
