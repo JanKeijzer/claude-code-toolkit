@@ -57,3 +57,4 @@
 
 - Bash tool: always save API responses to a file first, then read the file
 - Never use command substitution with pipes for API data
+- Git commits: write the message to `/tmp/commit-msg` first, then use `git commit -F /tmp/commit-msg`. Never use heredoc in the commit command — multi-line commands don't match `Bash(git *)` permissions.
