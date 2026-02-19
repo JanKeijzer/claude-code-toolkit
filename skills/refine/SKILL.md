@@ -23,6 +23,7 @@ FOLLOW ALL STEPS STRICTLY. NO SHORTCUTS.
 - Bash is for `gh` commands, `git` commands, and `~/.claude/bin/` scripts only
 - NEVER use heredoc or `cat <<` in Bash — use the Write tool to write to `/tmp/`, then reference the file with `--body-file`
 - Use Write to create new files — NEVER use `mkdir` via Bash (Write auto-creates parent directories)
+- Use `git rm` to delete files — NEVER use `rm` via Bash
 - For batch operations on multiple issues, use `~/.claude/bin/` scripts (e.g., `batch-issue-status.sh`, `batch-issue-view.sh`) — NEVER use `for` loops in Bash
 
 ## Phase 1: Understand Current State

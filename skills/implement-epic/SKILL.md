@@ -23,6 +23,7 @@ FOLLOW ALL STEPS STRICTLY. NO SHORTCUTS. This skill runs autonomously — no con
 - Bash is for `gh` commands, `git` commands, running tests, and `~/.claude/bin/` scripts only
 - NEVER use heredoc or `cat <<` in Bash — use the Write tool to write to `/tmp/`, then reference the file
 - Use Write to create new files — NEVER use `mkdir` via Bash (Write auto-creates parent directories)
+- Use `git rm` to delete files — NEVER use `rm` via Bash
 - For batch operations on multiple issues, use `~/.claude/bin/` scripts (e.g., `batch-issue-status.sh`, `batch-issue-view.sh`) — NEVER use `for` loops in Bash
 
 Follow the Test Quality Policy and Anti-Patterns from CLAUDE.md throughout all phases.
@@ -186,6 +187,7 @@ Body: <full issue body>
 - Bash is for `gh` commands, `git` commands, running tests, and `~/.claude/bin/` scripts only
 - NEVER use heredoc or `cat <<` in Bash — use Write to `/tmp/`, then reference the file
 - Use Write to create new files — NEVER use `mkdir` via Bash
+- Use `git rm` to delete files — NEVER use `rm` via Bash
 
 ## Response Format
 
