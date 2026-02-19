@@ -107,17 +107,7 @@ The `bin/` directory contains reusable shell scripts that skills call instead of
 | `find-tracking-pr.sh` | `find-tracking-pr.sh <repo> <issue>` | Find the tracking PR for a parent issue |
 | `extract-issue-from-branch.sh` | `extract-issue-from-branch.sh` | Extract issue number from current branch name |
 
-To allow these scripts in your project's `.claude/settings.json`:
-
-```json
-{
-  "permissions": {
-    "allow": [
-      "Bash(~/.claude/bin/*)"
-    ]
-  }
-}
-```
+These scripts are already allowed in the global settings (`~/.claude/settings.json`) installed by the toolkit.
 
 ## Repository Structure
 
@@ -152,7 +142,7 @@ claude-code-toolkit/
 │   ├── settings-global.jsonc  ← global permissions → ~/.claude/settings.json
 │   ├── project-template.md    ← template for project-specific CLAUDE.md
 │   └── settings-template.jsonc ← template for project-specific settings
-├── install.sh                 ← creates symlinks
+├── install.sh                 ← creates symlinks + copies settings
 └── README.md
 ```
 
@@ -271,7 +261,44 @@ flowchart TD
 
 ## Skills in Detail
 
-### 1. `/decompose` - Break Down Issue
+### 1. `/refine` - Refine Issue
+
+**When:** You have a rough issue that needs sharper scope and acceptance criteria before implementation or decomposition.
+
+**What it does:**
+1. Reads the existing issue and explores the codebase for context
+2. Asks focused questions in rounds of 2-4 to clarify scope, criteria, and dependencies
+3. Proposes an updated issue body with clear structure
+4. Updates the issue after confirmation
+
+**Syntax:**
+```bash
+/refine 42
+```
+
+**Example output:**
+```
+Reading issue #42: Add invoice attachment storage...
+
+Current issue is missing:
+- Specific acceptance criteria
+- Scope boundaries (which file types? size limits?)
+- Storage strategy
+
+Questions:
+1. Should attachments be stored on local disk or S3?
+2. What file types need to be supported?
+3. Is there a maximum file size?
+
+[... Q&A rounds until sharp ...]
+
+Proposed updated issue: [full body with Context, Scope, Acceptance Criteria]
+Update issue #42 with this? (y/n)
+```
+
+---
+
+### 2. `/decompose` - Break Down Issue
 
 **When:** You have a large issue that's too complex for a single PR.
 
@@ -303,7 +330,7 @@ Create draft PR and sub-issues? (A/B/C)
 
 ---
 
-### 2. `/extend` - Add More Sub-Issues
+### 3. `/extend` - Add More Sub-Issues
 
 **When:** You've completed the first batch of sub-issues and want to tackle the next phase.
 
@@ -328,7 +355,7 @@ Create draft PR and sub-issues? (A/B/C)
 
 ---
 
-### 3. `/bug` - Create Bug Issue
+### 4. `/bug` - Create Bug Issue
 
 **When:** You find a bug while working on a sub-issue.
 
@@ -358,7 +385,7 @@ $ /bug "Signature verification fails in test mode"
 
 ---
 
-### 4. `/update-tracking` - Update Status
+### 5. `/update-tracking` - Update Status
 
 **When:** You want to update the progress in the tracking PR.
 
@@ -384,7 +411,7 @@ $ /bug "Signature verification fails in test mode"
 
 ---
 
-### 5. `/sync-closes` - Sync Closes Statements
+### 6. `/sync-closes` - Sync Closes Statements
 
 **When:** Before merging, to ensure all issues will auto-close.
 
@@ -412,10 +439,23 @@ Add "Closes #730" to PR? (y/n)
 
 ## Complete Example Workflow
 
-### Step 1: Start with large issue
+### Step 0: Refine the rough issue
 
 ```bash
-# Issue #723: Stripe Payment Provider (large, 5 phases)
+# Issue #723 exists but is vague: "Add Stripe payments"
+/refine 723
+
+# Output:
+# Reading issue #723...
+# Questions about scope, payment methods, error handling...
+# [Q&A rounds]
+# ✅ Updated issue #723 with clear scope and acceptance criteria
+```
+
+### Step 1: Decompose the refined issue
+
+```bash
+# Issue #723: Stripe Payment Provider (now well-defined, 5 phases)
 /decompose 723
 
 # Output:
