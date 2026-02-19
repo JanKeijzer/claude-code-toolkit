@@ -30,13 +30,18 @@ Restart Claude Code after installation. Skills are auto-discovered from `~/.clau
 
 ### Project Template
 
-To set up a new project with a CLAUDE.md:
+To set up a new project with a CLAUDE.md and settings:
 
 ```bash
+# Project-specific policies
 cp ~/Projects/claude-code-toolkit/claude-md/project-template.md /path/to/your/project/CLAUDE.md
+
+# Project-specific permissions (remove comments and keep what applies)
+mkdir -p /path/to/your/project/.claude
+cp ~/Projects/claude-code-toolkit/claude-md/settings-template.jsonc /path/to/your/project/.claude/settings.json
 ```
 
-Then fill in the sections relevant to your project.
+Then fill in the sections relevant to your project. The settings template includes commented-out permissions for common tools (Docker, Python, Node, etc.) — uncomment what you need.
 
 ## Sub-Agents
 
@@ -125,7 +130,8 @@ claude-code-toolkit/
 │   └── update-tracking/
 ├── claude-md/                 ← CLAUDE.md files (policies)
 │   ├── global.md              ← global policies → ~/.claude/CLAUDE.md
-│   └── project-template.md    ← template for project-specific CLAUDE.md
+│   ├── project-template.md    ← template for project-specific CLAUDE.md
+│   └── settings-template.jsonc ← template for project-specific settings
 ├── install.sh                 ← creates symlinks
 └── README.md
 ```
@@ -149,6 +155,12 @@ Copy to a project root as `CLAUDE.md` and fill in:
 - Development commands (run, test, lint, validate)
 - API and database conventions
 - Project-specific patterns and deployment notes
+
+### Settings Template (`claude-md/settings-template.jsonc`)
+
+Copy to `.claude/settings.json` in your project. Contains commented-out permissions for common tools (Docker, Python, Node, project scripts) and safe deny-defaults for destructive git operations. Uncomment what applies to your project.
+
+Global permissions (git, gh, edit, file operations) are in `~/.claude/settings.json` — don't repeat them in project settings.
 
 ## All Skills
 

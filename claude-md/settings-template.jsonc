@@ -1,0 +1,61 @@
+// Claude Code Project Settings Template
+//
+// Copy this file to your project: .claude/settings.json
+// Remove the comments (JSONC → JSON) and keep only what applies.
+//
+// NOTE: Global permissions (git, gh, edit, file operations) are already
+// handled in ~/.claude/settings.json — no need to repeat them here.
+// This file is for PROJECT-SPECIFIC permissions only.
+//
+// Tip: use settings.local.json for machine-specific permissions
+// (SSH access, WebFetch domains, etc.) — don't commit those.
+{
+  "permissions": {
+    "allow": [
+      // ── Docker ──────────────────────────────────────────────
+      // "Bash(docker *)",
+      // "Bash(docker compose *)",
+
+      // ── Python ──────────────────────────────────────────────
+      // "Bash(python *)",
+      // "Bash(python3 *)",
+      // "Bash(uv *)",
+      // "Bash(pip *)",
+      // "Bash(pytest *)",
+      // "Bash(ruff *)",
+      // "Bash(alembic *)",
+      // "Bash(.venv/bin/*)",
+      // "Bash(PYTHONPATH=* python *)",
+      // "Bash(PYTHONPATH=* pytest *)",
+
+      // ── Node / Frontend ─────────────────────────────────────
+      // "Bash(npm *)",
+      // "Bash(npx *)",
+      // "Bash(node *)",
+
+      // ── General ─────────────────────────────────────────────
+      // "Bash(bash *)",
+      // "Bash(source *)",
+      // "Bash(curl *)",
+      // "Bash(timeout *)",
+      // "Bash(make *)",
+
+      // ── Project scripts ─────────────────────────────────────
+      // "Bash(./scripts/*)",
+      // "Bash(./start.sh *)",
+      // "Bash(./stop.sh *)"
+    ],
+    "deny": [
+      // Safe defaults — prevent destructive git operations
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(git merge *)"
+    ]
+
+    // ── Additional directories ────────────────────────────────
+    // Uncomment to give Claude read/write access to paths outside the project.
+    // "additionalDirectories": [
+    //   "/tmp"
+    // ]
+  }
+}
