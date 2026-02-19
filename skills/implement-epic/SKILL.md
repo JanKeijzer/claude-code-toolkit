@@ -185,7 +185,7 @@ Body: <full issue body>
 - Use Grep to search file contents — NEVER use `grep` or `rg` via Bash
 - Use Read to read files — NEVER use `cat`, `head`, or `tail` via Bash
 - Bash is for `gh` commands, `git` commands, running tests, and `~/.claude/bin/` scripts only
-- NEVER use heredoc or `cat <<` in Bash — use Write to `/tmp/`, then reference the file
+- NEVER write files via Bash (no `echo >`, `cat <<`, `tee`, heredoc) — use the Write tool to write to `/tmp/`, then reference the file
 - Use Write to create new files — NEVER use `mkdir` via Bash
 - Use `git rm` to delete files — NEVER use `rm` via Bash
 
