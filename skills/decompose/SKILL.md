@@ -20,6 +20,7 @@ The user provides an issue number: `$ARGUMENTS`
 - Use Read to read files — NEVER use `cat`, `head`, or `tail` via Bash
 - Bash is for `gh` commands, `git` commands, and `~/.claude/bin/` scripts only
 - NEVER write files via Bash (no `echo >`, `cat <<`, `tee`, heredoc) — use the Write tool to write to `/tmp/`, then reference the file with `--body-file`
+- NEVER use `python3 -c`, `sed`, or `awk` for file modifications — use Grep to find occurrences, then Edit to replace them
 - Use Write to create new files — NEVER use `mkdir` via Bash (Write auto-creates parent directories)
 - Use `git rm` to delete files — NEVER use `rm` via Bash
 - For batch operations on multiple issues, use `~/.claude/bin/` scripts (e.g., `batch-issue-status.sh`, `batch-issue-view.sh`) — NEVER use `for` loops in Bash
