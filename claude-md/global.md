@@ -59,3 +59,4 @@
 - Never use command substitution with pipes for API data
 - Never write files via Bash (no `echo >`, `cat <<`, `tee`, heredoc). These don't match permission patterns like `Bash(git *)`. Instead: use the Write tool to write to `/tmp/`, then reference the file in Bash (e.g., `git commit -F /tmp/commit-msg`, `gh issue create --body-file /tmp/issue-body.md`).
 - Never use `python3 -c`, `sed`, or `awk` for file modifications. Use Grep to find occurrences, then Edit to replace them.
+- For batch operations on multiple issues, always use `~/.claude/bin/` scripts (e.g., `batch-issue-status.sh`, `batch-issue-view.sh`). Never use `for` loops or chained `&&` commands to repeat `gh` calls.
