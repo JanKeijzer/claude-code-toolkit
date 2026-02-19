@@ -20,8 +20,9 @@ FOLLOW ALL STEPS STRICTLY. NO SHORTCUTS.
 - Use Glob to find files — NEVER use `find` or `ls` via Bash
 - Use Grep to search file contents — NEVER use `grep` or `rg` via Bash
 - Use Read to read files — NEVER use `cat`, `head`, or `tail` via Bash
-- Bash is ONLY for `gh` commands (issue view/edit/create/list)
-- Write is ONLY for writing issue bodies to `/tmp/` — NEVER use heredoc or `cat <<` in Bash
+- Bash is for `gh` commands, `git` commands, and `~/.claude/bin/` scripts only
+- NEVER use heredoc or `cat <<` in Bash — use the Write tool to write to `/tmp/`, then reference the file with `--body-file`
+- For batch operations on multiple issues, use `~/.claude/bin/` scripts (e.g., `batch-issue-status.sh`, `batch-issue-view.sh`) — NEVER use `for` loops in Bash
 
 ## Phase 1: Understand Current State
 

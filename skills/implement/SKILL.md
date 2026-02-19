@@ -20,8 +20,9 @@ FOLLOW ALL STEPS STRICTLY. NO SHORTCUTS. MUST use ~/.claude/bin/git-find-base-br
 - Use Glob to find files — NEVER use `find` or `ls` via Bash
 - Use Grep to search file contents — NEVER use `grep` or `rg` via Bash
 - Use Read to read files — NEVER use `cat`, `head`, or `tail` via Bash
-- Bash is for `gh` commands, `git` commands, running tests, and build tools only
+- Bash is for `gh` commands, `git` commands, running tests, and `~/.claude/bin/` scripts only
 - NEVER use heredoc or `cat <<` in Bash — use the Write tool to write to `/tmp/`, then reference the file
+- For batch operations on multiple issues, use `~/.claude/bin/` scripts (e.g., `batch-issue-status.sh`, `batch-issue-view.sh`) — NEVER use `for` loops in Bash
 
 Follow the Test Quality Policy and Anti-Patterns from CLAUDE.md throughout all phases.
 
