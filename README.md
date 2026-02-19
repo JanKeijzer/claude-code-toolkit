@@ -49,8 +49,10 @@ The toolkit includes specialized sub-agents for issue creation, infrastructure m
 
 ```
 Rough idea → issue-crafter → Well-defined issues → /decompose (if large) → /implement
-                                                                               ↓
-infra-maintainer (advises) → GitHub issue → /implement (code) → devops-automator (deploy)
+                  ↑                                                             ↓
+         /refine (existing issues)                                      devops-automator (deploy)
+                                                                             ↑
+infra-maintainer (advises) → GitHub issue → /implement (code) ───────────────┘
                                            ↑
                               or: human creates issue directly
 ```
@@ -65,7 +67,10 @@ infra-maintainer (advises) → GitHub issue → /implement (code) → devops-aut
 
 Translates rough ideas and descriptions into well-structured GitHub issues. Explores the codebase for context, asks clarifying questions about scope and acceptance criteria, and presents structured proposals for approval before creating anything. Recommends `/decompose` for issues that are too large for a single PR.
 
-**Workflow:** rough idea → codebase exploration → clarifying questions → issue proposal → human approval → `gh issue create`
+**Workflow (create):** rough idea → codebase exploration → clarifying questions → issue proposal → human approval → `gh issue create`
+**Workflow (refine):** existing issue → read & assess → interactive Q&A → updated proposal → human approval → `gh issue edit`
+
+The `/refine` skill provides a shortcut to invoke the refine workflow for a specific issue.
 
 ### infra-maintainer
 
@@ -128,6 +133,7 @@ claude-code-toolkit/
 │   ├── find-tracking-pr.sh   ← find tracking PR for a parent issue
 │   └── extract-issue-from-branch.sh ← extract issue number from branch name
 ├── skills/                    ← skill definitions (procedures)
+│   ├── refine/
 │   ├── implement/
 │   ├── decompose/
 │   ├── bug/
@@ -176,6 +182,7 @@ Global permissions (git, gh, edit, file operations) are in `~/.claude/settings.j
 
 | Skill | Syntax | Description |
 |-------|--------|-------------|
+| `/refine` | `/refine <issue>` | Refine a GitHub issue through interactive Q&A to sharpen scope and criteria |
 | `/decompose` | `/decompose <issue>` | Break down a large issue into sub-issues with a tracking PR |
 | `/extend` | `/extend <issue>` | Add more sub-issues to an existing tracking PR |
 | `/implement` | `/implement <issue>` | Implement a GitHub issue with automated PR creation |
@@ -193,6 +200,7 @@ Global permissions (git, gh, edit, file operations) are in `~/.claude/settings.j
 
 | Skill | Syntax | When to Use |
 |-------|--------|-------------|
+| `/refine` | `/refine <issue>` | Sharpen scope & acceptance criteria |
 | `/decompose` | `/decompose <issue>` | Start: break down large issue |
 | `/extend` | `/extend <issue>` | Later: add more sub-issues |
 | `/bug` | `/bug "<title>"` | Bug found during work |
@@ -205,8 +213,12 @@ Global permissions (git, gh, edit, file operations) are in `~/.claude/settings.j
 
 ```mermaid
 flowchart TD
+    subgraph phase0 [Phase 0: Refinement]
+        R[Rough Issue] -->|refine| A[Well-defined Issue]
+    end
+
     subgraph phase1 [Phase 1: Decomposition]
-        A[Large Issue] -->|decompose| B[Draft PR]
+        A -->|decompose| B[Draft PR]
         B --> C[Sub-issues]
     end
 
@@ -233,6 +245,7 @@ flowchart TD
         O --> P[Auto-close issues]
     end
 
+    style R fill:#f3e5f5
     style A fill:#e1f5fe
     style B fill:#fff3e0
     style P fill:#c8e6c9
