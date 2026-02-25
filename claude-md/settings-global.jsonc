@@ -65,12 +65,7 @@
       // ask for confirmation if these are ever needed.
       "Bash(rm -rf /)",
       "Bash(rm -rf /*)",
-      "Bash(rm -rf ~)",
-
-      // ── Anti-patterns ──────────────────────────────────────────
-      // Prevent Claude from using python3 -c for file processing.
-      // Forces use of proper tools (Grep, Read, Edit) instead.
-      "Bash(python3 -c *)"
+      "Bash(rm -rf ~)"
     ]
   }
 }
