@@ -55,6 +55,7 @@
 
 ## Claude Code Workarounds
 
+- ALWAYS prefer native tools (Read, Write, Edit, Grep, Glob) over Bash equivalents. Bash is ONLY for actual shell operations (git, docker, npm, etc.) — never for file reading, writing, searching, or editing.
 - Bash tool: always save API responses to a file first, then read the file. Use `~/.claude/bin/gh-save.sh /tmp/output.json <gh-args>` to save `gh` output (shell redirects like `>` trigger permission prompts).
 - Never use command substitution with pipes for API data
 - Never write files via Bash (no `echo >`, `cat <<`, `tee`, heredoc). These don't match permission patterns like `Bash(git *)`. Instead: use the Write tool to write to `/tmp/`, then reference the file in Bash (e.g., `git commit -F /tmp/commit-msg`, `gh issue create --body-file /tmp/issue-body.md`).
