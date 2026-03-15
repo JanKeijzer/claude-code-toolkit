@@ -7,11 +7,23 @@
 - Commit messages in English, concise and descriptive
 - `docker compose` (with space), never `docker-compose` (with hyphen)
 
-## Running Tests (CRITICAL — permissions)
+## Bash Permissies (CRITICAL)
 
 Claude Code permissies matchen op het EERSTE woord van Bash-commando's.
-Geketende commando's als `cd X && source venv && pytest` starten met `cd`, niet `pytest`.
-Dit triggert ALTIJD een permissieprompt, ook al is `Bash(pytest *)` allowed.
+`cd X && python ...` matcht NIET op `Bash(python *)` — het eerste woord is `cd`.
+
+NOOIT `cd path &&` voor een commando zetten. Alternatieven:
+- Gebruik het volledige pad naar de binary: `/home/jan/Projects/PAM/backend/.venv/bin/python -c "..."`
+- Gebruik een `~/.claude/bin/` wrapper script (matcht altijd `Bash(~/.claude/bin/*)`)
+- Gebruik native tools waar mogelijk (Read ipv cat, Grep ipv grep)
+
+Dit geldt voor ALLE commando's, niet alleen pytest. Voorbeelden:
+- `cd X && python ...` → `/absolute/path/.venv/bin/python ...`
+- `cd X && pip install ...` → `/absolute/path/.venv/bin/pip install ...`
+- `cd X && npm run ...` → draai vanuit de juiste werkdirectory, niet via cd &&
+- `source .venv/bin/activate && ...` → gebruik het volledige pad naar de venv binary
+
+### Pytest specifiek
 
 VERPLICHT voor alle pytest-aanroepen:
 
@@ -21,12 +33,6 @@ Dit script:
 - Matcht `Bash(~/.claude/bin/*)` (altijd allowed, geen permissieprompt)
 - Detecteert en gebruikt automatisch project venv (.venv, backend/.venv, etc.)
 - Valideert dat je binnen ~/Projects/ draait
-
-NOOIT gebruiken:
-- `cd path && pytest ...` — eerste woord is `cd`, niet `pytest`
-- `source .venv/bin/activate && pytest ...` — eerste woord is `source`
-- `python -m pytest ...` (direct) — gebruik het wrapper script
-- `.venv/bin/pytest ...` (direct) — gebruik het wrapper script
 
 ## Test Quality Policy
 
