@@ -115,6 +115,7 @@ The `bin/` directory contains reusable shell scripts that skills call instead of
 | `secret-scan.sh` | `secret-scan.sh [project-dir]` | Scan codebase for hardcoded secrets, API keys, tokens |
 | `security-headers-check.sh` | `security-headers-check.sh <url>` | Check HTTP security headers (CSP, HSTS, X-Frame-Options, etc.) |
 | `owasp-zap-scan.sh` | `owasp-zap-scan.sh <url>` | OWASP ZAP baseline scan via Docker (requires running target) |
+| `sync-toolkit.sh` | `sync-toolkit.sh <pull\|status\|drift>` | Sync toolkit from git sources (used by `/sync-toolkit` skill) |
 
 These scripts are already allowed in the global settings (`~/.claude/settings.json`) installed by the toolkit.
 
@@ -142,7 +143,8 @@ claude-code-toolkit/
 │   ├── venv-run.sh                ← run any venv binary (python, pip, alembic)
 │   ├── secret-scan.sh             ← scan for hardcoded secrets and API keys
 │   ├── security-headers-check.sh  ← check HTTP security headers
-│   └── owasp-zap-scan.sh          ← OWASP ZAP baseline security scan
+│   ├── owasp-zap-scan.sh          ← OWASP ZAP baseline security scan
+│   └── sync-toolkit.sh            ← sync toolkit from configured git sources
 ├── skills/                    ← skill definitions (procedures)
 │   ├── refine/
 │   ├── implement/
@@ -158,12 +160,16 @@ claude-code-toolkit/
 │   ├── debug/
 │   ├── ss/
 │   ├── sync-closes/
-│   └── update-tracking/
+│   ├── update-tracking/
+│   ├── retro/
+│   ├── promote/
+│   └── sync-toolkit/
 ├── claude-md/                 ← CLAUDE.md files (policies) and settings
 │   ├── global.md              ← global policies → ~/.claude/CLAUDE.md
 │   ├── settings-global.jsonc  ← global permissions → ~/.claude/settings.json
 │   ├── project-template.md    ← template for project-specific CLAUDE.md
-│   └── settings-template.jsonc ← template for project-specific settings
+│   ├── settings-template.jsonc ← template for project-specific settings
+│   └── procedures/            ← shared procedure snippets (created via /promote)
 ├── install.sh                 ← creates symlinks + copies settings
 └── README.md
 ```
@@ -225,6 +231,9 @@ Global permissions (git, gh, edit, file operations) are in `~/.claude/settings.j
 | `/security-audit` | `/security-audit [domain\|issue]` | OWASP-guided security code review per domain |
 | `/debug` | `/debug <description>` | Systematic debugging — find root cause before fixes |
 | `/ss` | `/ss [number]` | Find recent screenshots |
+| `/retro` | `/retro [focus-area]` | End-of-session retrospective — capture knowledge as scripts, procedures, decisions, or skill proposals |
+| `/promote` | `/promote <script-or-procedure>` | Promote a project-local script or procedure to the shared toolkit |
+| `/sync-toolkit` | `/sync-toolkit <pull\|status\|drift>` | Sync toolkit across devices from configured git sources |
 
 ---
 
@@ -285,6 +294,27 @@ flowchart TD
     style B fill:#fff3e0
     style P fill:#c8e6c9
 ```
+
+---
+
+## Knowledge Capture
+
+Two skills work together to prevent knowledge loss across sessions:
+
+- `/retro` captures knowledge from any working session — debug, implementation, configuration, deployment — as project-local artefacts (scripts, CLAUDE.md procedures, design decisions, auto-memory entries). Findings that look reusable across projects are flagged as toolkit candidates.
+- `/promote` generalises a project-local script or procedure into the shared toolkit, leaving a thin wrapper in the original project.
+
+The rule: capture locally first, promote when you have seen the pattern twice.
+
+## Multi-Device Sync
+
+For use across multiple devices (laptop, servers, cloud sandboxes):
+
+1. Run `install.sh` on the first device (creates symlinks + `toolkit.yaml`)
+2. On additional devices, use `/sync-toolkit pull` to install from configured sources
+3. Use `/sync-toolkit drift` to check for local modifications
+
+Configuration lives in `~/.claude/toolkit.yaml`. Add private repos there for proprietary skills.
 
 ---
 

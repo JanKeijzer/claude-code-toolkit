@@ -48,3 +48,37 @@ print()
 " > ~/.claude/settings.json
     echo "Installed: ~/.claude/settings.json (copied from settings-global.jsonc)"
 fi
+
+# Create toolkit.yaml if it does not exist
+if [ ! -f ~/.claude/toolkit.yaml ]; then
+    cat > ~/.claude/toolkit.yaml << 'EOF'
+# Claude Code Toolkit sync configuration
+# Run /sync-toolkit pull to update from source repos.
+sources:
+  - name: public
+    repo: https://github.com/JanKeijzer/claude-code-toolkit.git
+    branch: main
+    install:
+      skills: skills/
+      agents: agents/
+      claude-md: claude-md/global.md
+
+  # Uncomment for private skills:
+  # - name: imperial
+  #   repo: git@github.com:imperial-automation/claude-toolkit-private.git
+  #   branch: main
+  #   install:
+  #     skills: skills/
+
+targets:
+  skills: ~/.claude/skills
+  agents: ~/.claude/agents
+  claude-md: ~/.claude/CLAUDE.md
+
+cache_dir: ~/.claude/toolkit-cache
+EOF
+    echo "Created ~/.claude/toolkit.yaml"
+fi
+
+# Create toolkit-proposals directory
+mkdir -p ~/.claude/toolkit-proposals
