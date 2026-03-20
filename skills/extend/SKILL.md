@@ -1,7 +1,7 @@
 ---
 name: extend
 description: Add more sub-issues to an existing tracking PR for a parent issue
-argument-hint: <parent-issue>
+argument-hint: <parent-issue> | add #issue [#issue...] [to #parent]
 user-invocable: true
 ---
 
@@ -15,7 +15,19 @@ Use this when you've implemented the first batch of sub-issues and want to decom
 
 The user provides: `$ARGUMENTS`
 
-**Format:**
+**Two modes of operation:**
+
+### Mode 1: Add existing issues to tracking PR (NEW)
+- `add #<issue> [#<issue>...] [to #<parent>]`
+
+**Examples:**
+```bash
+/extend add #1042              # Add issue #1042, parent auto-detected from branch
+/extend add #1042 to #723     # Add issue #1042 to epic #723
+/extend add #1042 #1043 #1044 to #723  # Add multiple issues at once
+```
+
+### Mode 2: Decompose new sub-issues (original behavior)
 - `<parent-issue>` - The parent issue number (e.g., `723`)
 - No argument - Auto-detect from current branch
 
@@ -25,7 +37,86 @@ The user provides: `$ARGUMENTS`
 /extend            # Detect parent from branch (issue-723-...)
 ```
 
+**Disambiguation:** If `$ARGUMENTS` starts with `add` → Mode 1. Otherwise → Mode 2.
+
 ## Workflow
+
+### Mode 1: Add Existing Issues
+
+Use this when you have already-created issues that need to be linked to an epic's tracking PR.
+
+#### Step A1: Parse Arguments
+
+Extract from `$ARGUMENTS` (after stripping the `add` keyword):
+- **Issue numbers**: all `#<number>` tokens before the `to` keyword (strip the `#` prefix)
+- **Parent issue**: the `#<number>` after `to`, or auto-detect from branch if no `to` keyword
+
+```bash
+# Auto-detect parent from branch if needed
+PARENT_ISSUE=$(~/.claude/bin/extract-issue-from-branch.sh)
+```
+
+If no parent found and no `to #<parent>` given: ask the user to provide one explicitly.
+
+#### Step A2: Find Tracking PR
+
+```bash
+~/.claude/bin/find-tracking-pr.sh <repo> $PARENT_ISSUE
+```
+
+**If no tracking PR exists:** Inform the user and suggest using `/decompose` first.
+
+Read the tracking PR body to understand the current Closes statements and tracking table.
+
+#### Step A3: Fetch Issue Details
+
+Fetch details for all issues to be added:
+```bash
+~/.claude/bin/batch-issue-view.sh <repo> [issue-numbers...]
+```
+
+Use the Read tool to read the output. For each issue, extract: number, title, state, labels.
+
+#### Step A4: Update Tracking PR
+
+**4a. Add Closes statements** for each new issue (append after existing Closes lines):
+```markdown
+Closes #[existing-issues]
+Closes #1042  ← NEW
+Closes #1043  ← NEW
+```
+
+**4b. Add rows to tracking table** for each new issue:
+```markdown
+| # | Sub-Issue | Status | PR |
+|---|-----------|--------|-----|
+| ... existing entries ... |
+| N | #1042 - [Issue title] | ⏳ Pending | - |   ← NEW
+| N+1 | #1043 - [Issue title] | ⏳ Pending | - | ← NEW
+```
+
+Map issue state to status: OPEN → ⏳ Pending, CLOSED → ✅ Complete.
+
+**4c. Update progress line** to reflect the new total.
+
+#### Step A5: Show Summary
+
+```markdown
+## Issues Added to Epic
+
+✅ Added #1042 - [title] to tracking PR #[pr-number]
+✅ Added #1043 - [title] to tracking PR #[pr-number]
+✅ Closes statements updated
+✅ Progress: X of Y sub-issues complete (Z%)
+
+### Quick Links
+- Tracking PR: #[pr-number]
+- Parent issue: #[parent-issue]
+```
+
+---
+
+### Mode 2: Decompose New Sub-Issues (Original)
 
 ### Step 1: Identify Parent Issue
 

@@ -1,7 +1,7 @@
 ---
 name: bug
 description: Create a bug sub-issue and add it to the tracking PR
-argument-hint: "<bug title>" or <parent-issue> "<bug title>"
+argument-hint: "<bug title>" | <parent> "<title>" | add #issue [#issue...] [to #parent]
 user-invocable: true
 ---
 
@@ -13,9 +13,19 @@ Create a bug issue linked to a parent issue and automatically add it to the trac
 
 The user provides: `$ARGUMENTS`
 
-**Default behavior:** Extract parent issue from current branch name.
+**Two modes of operation:**
 
-**Format options:**
+### Mode 1: Add existing bug issues to tracking PR (NEW)
+- `add #<issue> [#<issue>...] [to #<parent>]`
+
+**Examples:**
+```bash
+/bug add #1042                  # Add existing issue #1042 as bug, parent from branch
+/bug add #1042 to #723         # Add existing issue #1042 as bug to epic #723
+/bug add #1042 #1043           # Add multiple existing bug issues at once
+```
+
+### Mode 2: Create new bug issue (original behavior)
 - `"<bug title>"` - Auto-detect parent from branch (DEFAULT)
 - `<parent-issue> "<bug title>"` - Explicit parent override
 
@@ -25,7 +35,98 @@ The user provides: `$ARGUMENTS`
 /bug 724 "Webhook signature fails in test mode"   # Explicit parent #724
 ```
 
+**Disambiguation:** If `$ARGUMENTS` starts with `add` → Mode 1. Otherwise → Mode 2.
+
 ## Workflow
+
+### Mode 1: Add Existing Bug Issues
+
+Use this when you have already-created bug issues that need to be linked to an epic's tracking PR.
+
+#### Step B1: Parse Arguments
+
+Extract from `$ARGUMENTS` (after stripping the `add` keyword):
+- **Issue numbers**: all `#<number>` tokens before the `to` keyword (strip the `#` prefix)
+- **Parent issue**: the `#<number>` after `to`, or auto-detect from branch if no `to` keyword
+
+```bash
+# Auto-detect parent from branch if needed
+PARENT_ISSUE=$(~/.claude/bin/extract-issue-from-branch.sh)
+```
+
+If no parent found and no `to #<parent>` given: ask the user to provide one explicitly.
+
+#### Step B2: Find Tracking PR
+
+```bash
+~/.claude/bin/find-tracking-pr.sh <repo> $PARENT_ISSUE
+```
+
+**If no tracking PR exists:** Inform the user and suggest using `/decompose` first.
+
+If parent is a sub-issue, also find the grandparent tracking PR:
+```bash
+~/.claude/bin/gh-save.sh /tmp/parent-issue-body.json issue view [parent-issue] --json body
+```
+Use the Read tool to read `/tmp/parent-issue-body.json` and find `Parent issue: #\d+` to get the grandparent issue number.
+
+#### Step B3: Fetch Issue Details
+
+Fetch details for all issues to be added:
+```bash
+~/.claude/bin/batch-issue-view.sh <repo> [issue-numbers...]
+```
+
+Use the Read tool to read the output. For each issue, extract: number, title, state, labels.
+
+#### Step B4: Add Bug Label
+
+For each issue, ensure the `bug` label is present:
+```bash
+gh issue edit [issue-number] --add-label "bug"
+```
+
+Also inherit relevant labels from the parent issue (e.g., `payment`, `backend`).
+
+#### Step B5: Update Tracking PR
+
+**5a. Add Closes statements** for each new issue (append after existing Closes lines):
+```markdown
+Closes #[existing-issues]
+Closes #1042  ← NEW
+```
+
+**5b. Add rows to tracking table** for each new issue (with 🐛 prefix):
+```markdown
+| # | Sub-Issue | Status | PR |
+|---|-----------|--------|-----|
+| ... existing entries ... |
+| N | #1042 - 🐛 Bug: [Issue title] | ⏳ Pending | - |   ← NEW
+```
+
+Map issue state to status: OPEN → ⏳ Pending, CLOSED → ✅ Complete.
+
+**5c. Update progress line** to reflect the new total.
+
+#### Step B6: Show Summary
+
+```markdown
+## Bug Issues Added to Epic
+
+✅ Added #1042 - 🐛 [title] to tracking PR #[pr-number]
+✅ Bug label added
+✅ Closes statements updated
+✅ Progress: X of Y sub-issues complete (Z%)
+
+### Quick Links
+- Tracking PR: #[pr-number]
+- Parent issue: #[parent-issue]
+- Bug issue: #1042
+```
+
+---
+
+### Mode 2: Create New Bug Issue (Original)
 
 ### Step 1: Parse Arguments and Detect Parent Issue
 

@@ -115,3 +115,55 @@ Before proceeding to PR creation:
    * Body: `Closes #$ARGUMENTS\n\n<implementation summary + test checklist>`
    * Against base branch from: `~/.claude/bin/git-find-base-branch`
 3. Return PR URL for review
+
+## Phase 5: Epic Tracking Update (automatic, if applicable)
+
+After PR creation, check if this issue is a sub-issue of an epic and update the tracking PR accordingly.
+
+### Step 1: Detect Parent Epic
+
+Read the issue body (already fetched in Phase 1) and search for parent references:
+- `Parent issue: #XXX`
+- `Part of #XXX`
+- `Related to #XXX`
+
+If no parent reference found → skip this phase entirely (not a sub-issue).
+
+### Step 2: Find Tracking PR
+
+```bash
+~/.claude/bin/find-tracking-pr.sh <repo> $PARENT_ISSUE
+```
+
+If no tracking PR exists → skip (inform user: "Note: no tracking PR found for parent #XXX").
+
+### Step 3: Update Tracking PR
+
+Read the tracking PR body and make two updates:
+
+**3a. Ensure Closes statement exists:**
+If `Closes #$ARGUMENTS` is not already in the PR body, add it after the last existing `Closes` line.
+
+**3b. Update tracking table row:**
+Find the row for this issue (`#$ARGUMENTS`) in the tracking table and update:
+- Status: `⏳ Pending` → `🔄 In Progress`
+- PR column: `-` → `PR #[new-pr-number]`
+
+If no row exists for this issue, add one:
+```markdown
+| N | #$ARGUMENTS - [Issue title] | 🔄 In Progress | PR #[new-pr-number] |
+```
+
+**3c. Write updated body and apply:**
+```bash
+# Write updated body to /tmp/pr_body.md using the Write tool
+gh pr edit [tracking-pr-number] --body-file /tmp/pr_body.md
+```
+
+### Step 4: Confirm
+
+```markdown
+✅ Updated tracking PR #[tracking-pr-number] for parent epic #[parent-issue]
+   - Status: 🔄 In Progress
+   - Linked: PR #[new-pr-number]
+```
