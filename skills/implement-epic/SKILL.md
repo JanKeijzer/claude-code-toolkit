@@ -197,13 +197,16 @@ Body: <full issue body>
 - NEVER close any issues — that happens automatically when the tracking PR is merged by the user
 - Your scope is ONE sub-issue only — do not touch other issues or the tracking PR
 
-## Tool Rules
+## Tool Rules — MUST FOLLOW (permission violations block the entire epic)
 - Use Glob to find files — NEVER use `find` or `ls` via Bash
 - Use Grep to search file contents — NEVER use `grep` or `rg` via Bash
 - Use Read to read files — NEVER use `cat`, `head`, or `tail` via Bash
-- Bash is for `gh` commands, `git` commands, running tests, and `~/.claude/bin/` scripts only
-- NEVER write files via Bash (no `echo >`, `cat <<`, `tee`, heredoc) — use the Write tool to write to `/tmp/`, then reference the file
-- NEVER use `python3 -c`, `sed`, or `awk` for file modifications — use Grep to find occurrences, then Edit to replace them
+- NEVER use shell redirects (`>`, `>>`, `2>`) — they trigger permission prompts that block autonomous execution
+- Save `gh` output with: `~/.claude/bin/gh-save.sh /tmp/output.json <gh-args>` — NEVER `gh ... > file`
+- Commit with: `~/.claude/bin/git-commit.sh "message"` — NEVER `git commit -m "..."` with inline messages
+- Push + PR + merge with: `~/.claude/bin/git-push-pr-merge.sh` — NEVER separate git push / gh pr create / gh pr merge
+- NEVER write files via Bash (no `echo >`, `cat <<`, `tee`, heredoc) — use the Write tool, then reference the file path
+- NEVER use `python3 -c`, `sed`, or `awk` for file modifications — use Grep to find, then Edit to replace
 - Use Write to create new files — NEVER use `mkdir` via Bash
 - Use `git rm` to delete files — NEVER use `rm` via Bash
 
@@ -291,12 +294,13 @@ You are performing a security AUDIT — your output is a structured report, NOT 
    - Write report to `/tmp/security-audit-report-<N>.md` using the Write tool
    - Post: `gh issue comment <N> --body-file /tmp/security-audit-report-<N>.md`
 
-## Tool Rules
+## Tool Rules — MUST FOLLOW (permission violations block the entire epic)
 - Use Glob to find files — NEVER use `find` or `ls` via Bash
 - Use Grep to search file contents — NEVER use `grep` or `rg` via Bash
 - Use Read to read files — NEVER use `cat`, `head`, or `tail` via Bash
-- Bash is for `gh` commands, `git` commands, `~/.claude/bin/` scripts only
-- NEVER write files via Bash — use the Write tool to write to `/tmp/`, then reference the file
+- NEVER use shell redirects (`>`, `>>`, `2>`) — they trigger permission prompts that block autonomous execution
+- Save `gh` output with: `~/.claude/bin/gh-save.sh /tmp/output.json <gh-args>` — NEVER `gh ... > file`
+- NEVER write files via Bash (no `echo >`, `cat <<`, `tee`, heredoc) — use the Write tool, then reference the file path
 
 ## Response Format
 
