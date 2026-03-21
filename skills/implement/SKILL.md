@@ -60,7 +60,7 @@ STOP HERE and ask for confirmation before proceeding to implementation.
 3. **REFACTOR — Clean up, then commit**
    * Remove duplication, improve naming if needed
    * Run tests again to confirm nothing broke
-   * Commit with a descriptive message for this step
+   * Commit: `~/.claude/bin/git-commit.sh "descriptive message for this step"`
 
 4. **Move on — Focus shifts to the next step**
    * Do not revisit completed steps unless a later test breaks them
@@ -109,12 +109,11 @@ Before proceeding to PR creation:
 
 ## Phase 4: PR Creation
 
-1. Push branch to remote
-2. Create PR with:
-   * Title: `<concise description of change>` (no "Closes" keyword in title)
-   * Body: `Closes #$ARGUMENTS\n\n<implementation summary + test checklist>`
-   * Against base branch from: `~/.claude/bin/git-find-base-branch`
-3. Return PR URL for review
+1. Determine base branch: `~/.claude/bin/git-find-base-branch`
+2. Write PR body to `/tmp/pr-body.md` using the Write tool (include `Closes #$ARGUMENTS` + implementation summary + test checklist)
+3. Push + create PR in one command:
+   `~/.claude/bin/git-push-pr-merge.sh --base <base-branch> --title "<concise description>" --body-file /tmp/pr-body.md --no-merge`
+4. Return PR URL for review
 
 ## Phase 5: Epic Tracking Update (automatic, if applicable)
 

@@ -187,12 +187,10 @@ Body: <full issue body>
    The full suite and project validation run after all sub-issues are done — not here.
 6. If tests fail: fix and retry (up to 3 attempts total)
 7. If tests pass:
-   - Commit with a descriptive message (use Write to /tmp/commit-msg.txt, then `git commit -F /tmp/commit-msg.txt`)
-   - Push: `git push -u origin issue-<N>-<description>`
-   - Write PR body to /tmp/pr-body.md, then create PR:
-     `gh pr create --title "<title>" --base <feature_branch> --body-file /tmp/pr-body.md`
-   - Auto-merge: `gh pr merge <pr-number> --merge --delete-branch`
-   - Return to feature branch: `git checkout <feature_branch>`, then `git pull origin <feature_branch>`
+   - Commit: `~/.claude/bin/git-commit.sh "concise descriptive message"`
+   - Write PR body to /tmp/pr-body.md using the Write tool, then push + PR + merge in one command:
+     `~/.claude/bin/git-push-pr-merge.sh --base <feature_branch> --title "<title>" --body-file /tmp/pr-body.md`
+   - This script pushes, creates the PR, merges it, and returns to the feature branch automatically
 
 ## HARD BOUNDARIES
 - Your PR target is the FEATURE BRANCH (`<feature_branch>`) — NEVER target `main` or `develop`

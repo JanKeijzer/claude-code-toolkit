@@ -66,18 +66,12 @@ The user provides: `$ARGUMENTS`
 
 **Step 6:** Stage and commit with pre-commit hook handling:
 - Run `git add .`
-- Attempt initial commit with message:
-  ```
-  feat: complete issue #[issue_number] implementation
-
-  🤖 Generated with [Claude Code](https://claude.ai/code)
-
-  Co-Authored-By: Claude <noreply@anthropic.com>
-  ```
+- Commit using: `~/.claude/bin/git-commit.sh "feat: complete issue #[issue_number] implementation" "" "🤖 Generated with [Claude Code](https://claude.ai/code)" "" "Co-Authored-By: Claude <noreply@anthropic.com>"`
+  (each argument becomes a line in the commit message)
 - **If commit fails due to pre-commit hooks:**
   - Detect that hooks modified files
   - Run `git add .` again to stage hook modifications
-  - Amend the commit with `git commit --amend --no-edit`
+  - Amend the commit with `~/.claude/bin/git-commit.sh --amend "feat: complete issue #[issue_number] implementation" "" "🤖 Generated with [Claude Code](https://claude.ai/code)" "" "Co-Authored-By: Claude <noreply@anthropic.com>"`
   - Verify all changes are committed with `git diff-index --quiet HEAD --`
 
 **Step 7:** Push current branch:
