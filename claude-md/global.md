@@ -9,10 +9,15 @@
 
 ## Bash Permissies (CRITICAL)
 
-Twee regels die ALTIJD gelden:
+Drie regels die ALTIJD gelden:
 
 1. NOOIT `cd path &&` voor een commando zetten — permissies matchen op het EERSTE woord (`cd`), niet op het eigenlijke commando
 2. NOOIT absolute paden naar venv binaries gebruiken — `*` in permissiepatronen matcht NIET over `/` heen, dus `/home/.../venv/bin/python` matcht niet op `Bash(*/python *)`
+3. NOOIT shell redirects (`>`, `>>`, `2>`, `2>/dev/null`) gebruiken — dit triggert permissie-prompts. Gebruik in plaats daarvan:
+   - `gh` output opslaan: `~/.claude/bin/gh-save.sh /tmp/output.json <gh-args>`
+   - Bestanden schrijven: Write tool → referentie in Bash
+   - Git commits: `~/.claude/bin/git-commit.sh "message"`
+   - Push + PR: `~/.claude/bin/git-push-pr-merge.sh --base <branch> --title "..." --body-file /tmp/pr-body.md`
 
 ### Venv commando's
 
@@ -32,6 +37,9 @@ Deze scripts:
 - `source .venv/bin/activate && python ...` — eerste woord is `source`
 - `/absolute/path/.venv/bin/python ...` — `*` matcht niet over `/`
 - `python -m pytest ...` — alleen als `python` in PATH zit EN `Bash(python *)` allowed is
+- `gh issue view 123 --json ... > /tmp/file.json` — shell redirect triggert permissie
+- `git commit -m "$(cat <<'EOF' ... EOF)"` — heredoc triggert permissie
+- `command 2>/dev/null` — stderr redirect triggert permissie
 
 ## Test Quality Policy
 
