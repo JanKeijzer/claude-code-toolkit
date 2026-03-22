@@ -108,7 +108,36 @@ Map issue state to status: OPEN → ⏳ Pending, CLOSED → ✅ Complete.
 
 **5c. Update progress line** to reflect the new total.
 
-#### Step B6: Show Summary
+#### Step B6: Link as Native GitHub Sub-Issues
+
+Link the added bug issues to the parent issue using the GitHub GraphQL API:
+
+1. Fetch the node IDs for parent and all bug issues in one query:
+```bash
+gh api graphql -f query='
+{
+  repository(owner: "OWNER", name: "REPO") {
+    parent: issue(number: [parent-number]) { id }
+    sub1: issue(number: [sub-number-1]) { id }
+    ...
+  }
+}'
+```
+
+2. Link each bug issue to the parent:
+```bash
+gh api graphql -f query='
+mutation {
+  addSubIssue(input: {issueId: "[parent-node-id]", subIssueId: "[sub-node-id]"}) {
+    issue { number }
+    subIssue { number }
+  }
+}'
+```
+
+**Do this for ALL added issues.** This enables GitHub's native sub-issue tracking in the UI.
+
+#### Step B7: Show Summary
 
 ```markdown
 ## Bug Issues Added to Epic
@@ -208,7 +237,33 @@ Then create the issue:
 gh issue create --title "🐛 [Parent #XXX] Bug: [bug title]" --label "bug" --body-file /tmp/bug-issue.md
 ```
 
-### Step 6: Add to Tracking PR
+### Step 6: Link as Native GitHub Sub-Issue
+
+Link the newly created bug issue to the parent issue using the GitHub GraphQL API:
+
+1. Fetch the node IDs for parent and the new bug issue:
+```bash
+gh api graphql -f query='
+{
+  repository(owner: "OWNER", name: "REPO") {
+    parent: issue(number: [parent-number]) { id }
+    bug: issue(number: [new-bug-number]) { id }
+  }
+}'
+```
+
+2. Link the bug issue to the parent:
+```bash
+gh api graphql -f query='
+mutation {
+  addSubIssue(input: {issueId: "[parent-node-id]", subIssueId: "[bug-node-id]"}) {
+    issue { number }
+    subIssue { number }
+  }
+}'
+```
+
+### Step 7: Add to Tracking PR
 
 Update the tracking PR to include the new bug:
 
@@ -227,7 +282,7 @@ Closes #[NEW-BUG-ISSUE]  ← Add this
 | N | #[NEW] - 🐛 Bug: [title] | ⏳ Pending | - |
 ```
 
-### Step 7: Show Summary
+### Step 8: Show Summary
 
 ```markdown
 ## Bug Issue Created

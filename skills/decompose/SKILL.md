@@ -146,9 +146,39 @@ Then create the issue:
 gh issue create --title "[Parent #] Sub-issue: [Title]" --body-file /tmp/sub-issue-<n>.md
 ```
 
-### Step 5b: Verify Created Sub-Issues
+### Step 5b: Link as Native GitHub Sub-Issues
 
-After creating all sub-issues, fetch their details in one batch to confirm and build the tracking table:
+After creating all sub-issues, link them to the parent issue using the GitHub GraphQL API:
+
+1. Fetch the node IDs for parent and all sub-issues in one query:
+```bash
+gh api graphql -f query='
+{
+  repository(owner: "OWNER", name: "REPO") {
+    parent: issue(number: [parent-number]) { id }
+    sub1: issue(number: [sub-number-1]) { id }
+    sub2: issue(number: [sub-number-2]) { id }
+    ...
+  }
+}'
+```
+
+2. Link each sub-issue to the parent:
+```bash
+gh api graphql -f query='
+mutation {
+  addSubIssue(input: {issueId: "[parent-node-id]", subIssueId: "[sub-node-id]"}) {
+    issue { number }
+    subIssue { number }
+  }
+}'
+```
+
+**Do this for ALL created sub-issues.** This enables GitHub's native sub-issue tracking in the UI.
+
+### Step 5c: Verify Created Sub-Issues
+
+After creating and linking all sub-issues, fetch their details in one batch to confirm and build the tracking table:
 ```bash
 ~/.claude/bin/batch-issue-view.sh <repo> [created-issue-numbers...]
 ```

@@ -99,7 +99,37 @@ Map issue state to status: OPEN → ⏳ Pending, CLOSED → ✅ Complete.
 
 **4c. Update progress line** to reflect the new total.
 
-#### Step A5: Show Summary
+#### Step A5: Link as Native GitHub Sub-Issues
+
+Link the added issues to the parent issue using the GitHub GraphQL API:
+
+1. Fetch the node IDs for parent and all sub-issues in one query:
+```bash
+gh api graphql -f query='
+{
+  repository(owner: "OWNER", name: "REPO") {
+    parent: issue(number: [parent-number]) { id }
+    sub1: issue(number: [sub-number-1]) { id }
+    sub2: issue(number: [sub-number-2]) { id }
+    ...
+  }
+}'
+```
+
+2. Link each sub-issue to the parent:
+```bash
+gh api graphql -f query='
+mutation {
+  addSubIssue(input: {issueId: "[parent-node-id]", subIssueId: "[sub-node-id]"}) {
+    issue { number }
+    subIssue { number }
+  }
+}'
+```
+
+**Do this for ALL added issues.** This enables GitHub's native sub-issue tracking in the UI.
+
+#### Step A6: Show Summary
 
 ```markdown
 ## Issues Added to Epic
@@ -226,6 +256,36 @@ Then create the issue:
 ```bash
 gh issue create --title "[Parent #$PARENT_ISSUE] [Sub-issue title]" --body-file /tmp/sub-issue-<n>.md
 ```
+
+### Step 6b: Link as Native GitHub Sub-Issues
+
+After creating all sub-issues, link them to the parent issue using the GitHub GraphQL API:
+
+1. Fetch the node IDs for parent and all new sub-issues in one query:
+```bash
+gh api graphql -f query='
+{
+  repository(owner: "OWNER", name: "REPO") {
+    parent: issue(number: [parent-number]) { id }
+    sub1: issue(number: [sub-number-1]) { id }
+    sub2: issue(number: [sub-number-2]) { id }
+    ...
+  }
+}'
+```
+
+2. Link each sub-issue to the parent:
+```bash
+gh api graphql -f query='
+mutation {
+  addSubIssue(input: {issueId: "[parent-node-id]", subIssueId: "[sub-node-id]"}) {
+    issue { number }
+    subIssue { number }
+  }
+}'
+```
+
+**Do this for ALL created sub-issues.** This enables GitHub's native sub-issue tracking in the UI.
 
 ### Step 7: Update Tracking PR
 
