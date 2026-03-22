@@ -63,6 +63,8 @@ git checkout -b issue-$ARGUMENTS-[feature-name]
 
 Use this template structure:
 
+**IMPORTANT:** The `Closes` statements must include BOTH the parent issue AND all sub-issues. When creating the PR initially (before sub-issues exist), start with just `Closes #[issue-number]`. After creating sub-issues in Step 5, update the PR body to add `Closes #[sub-issue-N]` for each sub-issue (see Step 5d).
+
 ```markdown
 Closes #[issue-number]
 
@@ -182,6 +184,20 @@ After creating and linking all sub-issues, fetch their details in one batch to c
 ```bash
 ~/.claude/bin/batch-issue-view.sh <repo> [created-issue-numbers...]
 ```
+
+### Step 5d: Add Closes Statements to Tracking PR
+
+Update the draft PR body to add `Closes #[sub-issue-number]` for each created sub-issue. This ensures all sub-issues auto-close when the tracking PR merges.
+
+Add after the existing `Closes #[parent-issue]` line:
+```markdown
+Closes #[parent-issue]
+Closes #[sub-issue-1]
+Closes #[sub-issue-2]
+...
+```
+
+Also update the tracking table with the actual sub-issue numbers and titles.
 
 ### Step 6: Update Parent Issue
 
