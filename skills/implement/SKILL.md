@@ -18,13 +18,17 @@ MUST use ~/.claude/bin/git-find-base-branch for base branch detection for the PR
 ## Phase 1: Discovery & Planning
 
 1. Fetch issue details: `~/.claude/bin/gh-save.sh /tmp/issue-$ARGUMENTS.json issue view $ARGUMENTS --json title,body,labels`, then use the Read tool to read it
-2. Read AND verify understanding of existing code:
+2. **Check for linked Sentry issues** in the issue body:
+   * Look for Sentry issue references like `PAM-BACKEND-X`, Sentry URLs, or "Sentry Issues" sections
+   * If found, note the Sentry issue IDs — these will be referenced in commit messages and the PR body for automatic resolution
+   * Store as a list, e.g. `SENTRY_ISSUES=["PAM-BACKEND-G", "PAM-BACKEND-H"]`
+3. Read AND verify understanding of existing code:
    * Read all CLAUDE.md files (root, frontend, backend if they exist)
    * Read the ACTUAL source files you plan to modify
    * Check what attributes/methods ACTUALLY exist on models you'll use
    * Find existing patterns for similar functionality (grep/search)
    * NEVER assume a model has an attribute - READ the model first
-3. Create detailed implementation plan as **numbered steps of max 5 minutes each**:
+4. Create detailed implementation plan as **numbered steps of max 5 minutes each**:
    * Issue requirements understanding
    * Existing code patterns you found and will follow
    * Files to modify/create
@@ -61,6 +65,7 @@ STOP HERE and ask for confirmation before proceeding to implementation.
    * Remove duplication, improve naming if needed
    * Run tests again to confirm nothing broke
    * Commit: `~/.claude/bin/git-commit.sh "descriptive message for this step"`
+   * If SENTRY_ISSUES were found in Phase 1, add `Fixes <ID>` to the **final commit only** (the last step before PR creation), e.g.: `~/.claude/bin/git-commit.sh "final step description" "" "Fixes PAM-BACKEND-G" "Fixes PAM-BACKEND-H"`
 
 4. **Move on — Focus shifts to the next step**
    * Do not revisit completed steps unless a later test breaks them
@@ -110,7 +115,7 @@ Before proceeding to PR creation:
 ## Phase 4: PR Creation
 
 1. Determine base branch: `~/.claude/bin/git-find-base-branch`
-2. Write PR body to `/tmp/pr-body.md` using the Write tool (include `Closes #$ARGUMENTS` + implementation summary + test checklist)
+2. Write PR body to `/tmp/pr-body.md` using the Write tool (include `Closes #$ARGUMENTS` + implementation summary + test checklist). If SENTRY_ISSUES were found in Phase 1, add a "Sentry" section: `## Sentry\nResolves: PAM-BACKEND-G, PAM-BACKEND-H`
 3. Push + create PR in one command:
    `~/.claude/bin/git-push-pr-merge.sh --base <base-branch> --title "<concise description>" --body-file /tmp/pr-body.md --no-merge`
 4. Return PR URL for review
