@@ -365,11 +365,13 @@ LAST_ERROR_OUTPUT: <relevant error output>
 
 #### Step 3C: Monitor sub-agent progress
 
+**⚠️ TOOL RULE: Use the Read tool to read progress files and TaskOutput to check agent status. NEVER use Bash commands like `tail`, `cat`, `grep`, or `head` for monitoring — these will be blocked by permissions and stall the epic.**
+
 After spawning the background sub-agent:
 
 1. Store the `task_id` from the Task tool response
 2. **Poll every 30-45 seconds** until the agent completes:
-   a. Read `/tmp/epic-progress-<N>.txt` (ignore if file doesn't exist yet — agent is still starting)
+   a. Use the **Read tool** on `/tmp/epic-progress-<N>.txt` (ignore if file doesn't exist yet — agent is still starting)
    b. Parse the `PHASE:`, `DETAIL:`, and `TESTS:` fields
    c. **Report to the user** with a human-readable status message:
       ```
