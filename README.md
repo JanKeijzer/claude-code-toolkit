@@ -100,7 +100,7 @@ The `bin/` directory contains reusable shell scripts that skills call instead of
 
 | Script | Usage | Description |
 |--------|-------|-------------|
-| `batch-issue-view.sh` | `batch-issue-view.sh <repo> <issues...>` | Fetch full issue details as JSON array |
+| `batch-issue-view.sh` | `batch-issue-view.sh [--output FILE] <repo> <issues...>` | Fetch full issue details as JSON array |
 | `batch-issue-status.sh` | `batch-issue-status.sh <repo> <issues...>` | Fetch issue number/state/closed as JSON array |
 | `git-find-base-branch` | `git-find-base-branch` | Detect the base branch of the current branch |
 | `git-cleanup-merged-branch.sh` | `git-cleanup-merged-branch.sh [feature] [base]` | Checkout base, pull, delete merged feature branch |
@@ -118,6 +118,8 @@ The `bin/` directory contains reusable shell scripts that skills call instead of
 | `secret-scan.sh` | `secret-scan.sh [project-dir]` | Scan codebase for hardcoded secrets, API keys, tokens |
 | `security-headers-check.sh` | `security-headers-check.sh <url>` | Check HTTP security headers (CSP, HSTS, X-Frame-Options, etc.) |
 | `owasp-zap-scan.sh` | `owasp-zap-scan.sh <url>` | OWASP ZAP baseline scan via Docker (requires running target) |
+| `gh-issues-export.sh` | `gh-issues-export.sh [--repo R] [--state S] [--output F]` | Export GitHub issues to JSON file with search/filter |
+| `gh-save.sh` | `gh-save.sh <output-file> <gh-args...>` | Save `gh` command output to file (avoids redirect prompts) |
 | `sync-toolkit.sh` | `sync-toolkit.sh <pull\|status\|drift>` | Sync toolkit from git sources (used by `/sync-toolkit` skill) |
 
 These scripts are already allowed in the global settings (`~/.claude/settings.json`) installed by the toolkit.
@@ -149,6 +151,8 @@ claude-code-toolkit/
 │   ├── secret-scan.sh             ← scan for hardcoded secrets and API keys
 │   ├── security-headers-check.sh  ← check HTTP security headers
 │   ├── owasp-zap-scan.sh          ← OWASP ZAP baseline security scan
+│   ├── gh-issues-export.sh        ← export GitHub issues to JSON file
+│   ├── gh-save.sh                 ← save gh command output to file
 │   └── sync-toolkit.sh            ← sync toolkit from configured git sources
 ├── skills/                    ← skill definitions (procedures)
 │   ├── refine/
