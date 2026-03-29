@@ -28,6 +28,14 @@ else
     echo "Installed: ~/.claude/bin → $REPO_DIR/bin/"
 fi
 
+# Symlink rules
+if [ -L ~/.claude/rules ] || [ -e ~/.claude/rules ]; then
+    echo "~/.claude/rules already exists. Remove it first if you want to reinstall."
+else
+    ln -sfn "$REPO_DIR/rules" ~/.claude/rules
+    echo "Installed: ~/.claude/rules → $REPO_DIR/rules/"
+fi
+
 # Symlink global CLAUDE.md
 if [ -L ~/.claude/CLAUDE.md ] || [ -e ~/.claude/CLAUDE.md ]; then
     echo "~/.claude/CLAUDE.md already exists. Remove it first if you want to reinstall."
