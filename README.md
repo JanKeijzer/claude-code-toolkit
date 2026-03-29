@@ -20,10 +20,11 @@ cd ~/Projects/claude-code-toolkit
 ./install.sh
 ```
 
-This creates four symlinks and copies one file:
+This creates five symlinks and copies one file:
 - `~/.claude/skills` → `skills/` (all skills auto-discovered)
 - `~/.claude/agents` → `agents/` (sub-agents auto-discovered)
 - `~/.claude/bin` → `bin/` (helper scripts)
+- `~/.claude/rules` → `rules/` (contextual rules, loaded based on file patterns)
 - `~/.claude/CLAUDE.md` → `claude-md/global.md` (global policies)
 - `~/.claude/settings.json` ← copied from `claude-md/settings-global.jsonc` (global permissions)
 
@@ -110,6 +111,8 @@ The `bin/` directory contains reusable shell scripts that skills call instead of
 | `env-audit.sh` | `env-audit.sh [project-dir]` | Audit .env vs .env.example sync, empty values, secrets in git |
 | `deps-audit.sh` | `deps-audit.sh [project-dir]` | Audit npm/pip dependencies for known vulnerabilities |
 | `docker-audit.sh` | `docker-audit.sh [project-dir]` | Audit Docker config (unpinned images, health checks, secrets) |
+| `docker-health-check.sh` | `docker-health-check.sh [project-dir] [--timeout S] [--filter PREFIX]` | Runtime Docker container health verification (status, restarts, error logs) |
+| `smoke-test.sh` | `smoke-test.sh [base-url] [--health-token TOKEN]` | API endpoint smoke testing with auto-discovery |
 | `project-test.sh` | `project-test.sh [pytest-args...]` | Run pytest with automatic venv detection (guardrailed to ~/Projects/) |
 | `venv-run.sh` | `venv-run.sh <cmd> [args...]` | Run any venv binary (python, pip, alembic) with auto-detection |
 | `secret-scan.sh` | `secret-scan.sh [project-dir]` | Scan codebase for hardcoded secrets, API keys, tokens |
@@ -139,6 +142,8 @@ claude-code-toolkit/
 │   ├── env-audit.sh               ← audit .env vs .env.example sync
 │   ├── deps-audit.sh              ← audit npm/pip dependencies for vulnerabilities
 │   ├── docker-audit.sh            ← audit Docker config for common issues
+│   ├── docker-health-check.sh     ← runtime Docker container health verification
+│   ├── smoke-test.sh              ← API endpoint smoke testing with auto-discovery
 │   ├── project-test.sh            ← run pytest with automatic venv detection
 │   ├── venv-run.sh                ← run any venv binary (python, pip, alembic)
 │   ├── secret-scan.sh             ← scan for hardcoded secrets and API keys
@@ -161,9 +166,14 @@ claude-code-toolkit/
 │   ├── ss/
 │   ├── sync-closes/
 │   ├── update-tracking/
+│   ├── verify/
 │   ├── retro/
 │   ├── promote/
 │   └── sync-toolkit/
+├── rules/                     ← contextual rules → ~/.claude/rules/
+│   ├── testing.md             ← test quality policy (loads for test files only)
+│   ├── code-review.md         ← code review conduct
+│   └── documentation.md       ← documentation standards (loads for .md files only)
 ├── claude-md/                 ← CLAUDE.md files (policies) and settings
 │   ├── global.md              ← global policies → ~/.claude/CLAUDE.md
 │   ├── settings-global.jsonc  ← global permissions → ~/.claude/settings.json
@@ -190,12 +200,15 @@ This is a copy (not symlink) because Claude Code writes to it when you approve p
 
 ### Global CLAUDE.md (`claude-md/global.md`)
 
-Symlinked to `~/.claude/CLAUDE.md`, applies to all projects. Contains:
+Symlinked to `~/.claude/CLAUDE.md`, applies to all projects. Contains only what's needed in every conversation:
 
 - **General Preferences** — language and communication conventions
-- **Test Quality Policy** — mocks, fixtures, test value standards
-- **Anti-Patterns** — things to always avoid
+- **Bash Permissies** — permission matching rules for venv and wrapper scripts
 - **Code Quality** — verification-before-coding rules
+- **Available Utilities** — references to wrapper scripts and audit skills
+- **Claude Code Workarounds** — native tool preferences, file writing rules
+
+Contextual rules (test quality, code review conduct, documentation standards) live in `rules/` and load only when relevant files are being edited.
 
 ### Project Template (`claude-md/project-template.md`)
 
@@ -233,6 +246,7 @@ Global permissions (git, gh, edit, file operations) are in `~/.claude/settings.j
 | `/ss` | `/ss [number]` | Find recent screenshots |
 | `/retro` | `/retro [focus-area]` | End-of-session retrospective — capture knowledge as scripts, procedures, decisions, or skill proposals |
 | `/promote` | `/promote <script-or-procedure>` | Promote a project-local script or procedure to the shared toolkit |
+| `/verify` | `/verify [quick\|full\|browser]` | Runtime verification — containers, API health, migrations, browser smoke test |
 | `/sync-toolkit` | `/sync-toolkit <pull\|status\|drift>` | Sync toolkit across devices from configured git sources |
 
 ---
@@ -276,14 +290,25 @@ flowchart TD
         I --> J[Progress 33%]
     end
 
+    subgraph phase2b [Phase 2b: Verification]
+        J -->|verify| V1[Container Health]
+        J -->|verify| V2[API Smoke Test]
+        J -->|verify| V3[Migration Check]
+        J -->|verify| V4[Browser Test]
+        V1 --> VR[Verification Report]
+        V2 --> VR
+        V3 --> VR
+        V4 --> VR
+    end
+
     subgraph phase3 [Phase 3: Extension]
-        J -->|More work needed| K[extend command]
+        VR -->|More work needed| K[extend command]
         K --> L[New sub-issues]
         L --> D
     end
 
     subgraph phase4 [Phase 4: Completion]
-        J -->|All done| M[sync-closes]
+        VR -->|All done| M[sync-closes]
         M --> N[All Closes statements]
         N --> O[Merge PR]
         O --> P[Auto-close issues]
@@ -292,6 +317,7 @@ flowchart TD
     style R fill:#f3e5f5
     style A fill:#e1f5fe
     style B fill:#fff3e0
+    style VR fill:#e8f5e9
     style P fill:#c8e6c9
 ```
 
@@ -398,7 +424,8 @@ Create draft PR and sub-issues? (A/B/C)
 2. Groups sub-issues into waves (dependency order)
 3. Per sub-issue: branch, implement, test, PR, auto-merge
 4. On failure: creates bug issue, skips dependent issues, continues
-5. Updates tracking PR after each sub-issue
+5. Runs runtime verification (container health, API smoke test, migrations, browser)
+6. Updates tracking PR after each sub-issue
 
 **Syntax:**
 ```bash
@@ -418,6 +445,7 @@ Create draft PR and sub-issues? (A/B/C)
 | Confirmation | Stops for plan approval | Runs autonomously |
 | PRs | One PR against base branch | One PR per sub-issue against feature branch |
 | Failure | Stops on failure | Creates bug issue, skips dependents, continues |
+| Verification | CLAUDE.md pattern-based (only when Docker files changed) | Always runs full verification |
 
 ---
 
@@ -524,6 +552,42 @@ Found in table: #723, #724, #725, #730 (bug)
 Missing: #730
 
 Add "Closes #730" to PR? (y/n)
+```
+
+---
+
+### 8. `/verify` - Runtime Verification
+
+**When:** After implementation, after Docker changes, or whenever you want to check if the application is actually running correctly.
+
+**What it does:**
+1. **Container Health** — checks all Docker containers are running, healthy, not restart-looping, no errors in logs
+2. **API Health** — hits health endpoints and key API routes, checks for 5xx errors
+3. **Migration Status** — verifies alembic migrations are current (current == head)
+4. **Browser Smoke Test** — navigates to frontend via Playwright MCP, takes screenshot, checks console errors
+
+**Syntax:**
+```bash
+/verify              # quick mode (layers 1-3)
+/verify quick        # same as above
+/verify full         # all 4 layers including browser
+/verify browser      # browser smoke test only
+```
+
+**Project configuration:** Add an `Integration Verification` section to your project's CLAUDE.md to configure URLs, container prefixes, health tokens, and trigger patterns. See the project template for the format.
+
+**Example output:**
+```
+## Verification Report
+
+| Check | Status | Details |
+|-------|--------|---------|
+| Containers | PASS | 5/5 healthy |
+| API Health | PASS | 200 OK, all components healthy |
+| Migrations | PASS | Current matches head |
+| Browser | WARN | 2 console warnings (non-critical) |
+
+Overall: PASS
 ```
 
 ---
