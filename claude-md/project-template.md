@@ -52,3 +52,32 @@
 ## Deployment Notes
 
 <!-- How the project is deployed, environment variables, CI/CD notes, etc. -->
+
+## Integration Verification
+
+<!-- Optional: Configure runtime verification for /verify, /implement, and /implement-epic.
+     Remove this section if the project doesn't use Docker or doesn't need runtime checks.
+
+After implementation, verify Docker containers start correctly if any of these
+file patterns were modified:
+
+| Pattern | Containers affected |
+|---------|-------------------|
+| `backend/Dockerfile*` | all containers |
+| `docker-compose*` | all containers |
+| `requirements*.txt` or `pyproject.toml` | api, worker |
+| `package.json` | frontend |
+
+### Verification config
+- Container prefix: myproject_
+- Health check timeout: 120
+- Rebuild command: docker compose up -d --build
+- Health check: ~/.claude/bin/docker-health-check.sh --filter myproject_ --timeout 120
+- Smoke test: ~/.claude/bin/smoke-test.sh http://localhost:8080
+- Migrate command: docker exec myproject_api alembic upgrade head
+- Frontend URL: http://localhost:3000
+
+### Trigger rules
+- /implement: only run when modified files match the patterns above
+- /implement-epic: ALWAYS run full verification
+-->

@@ -105,6 +105,17 @@ DO NOT SKIP THIS PHASE. NO COMPLETION CLAIMS WITHOUT FRESH EVIDENCE.
 * If backend schemas were modified, ensure OpenAPI is regenerated
 * Fix any errors before proceeding
 
+### Step 2b: Project integration verification (if defined)
+
+Check the project's CLAUDE.md for an **Integration Verification** section. If it exists and defines file patterns with verification steps:
+
+1. Compare the files you modified against the trigger patterns
+2. If any modified files match a trigger pattern, run the verification steps defined in CLAUDE.md
+3. If no files match any trigger patterns, skip this step
+4. If the CLAUDE.md has no Integration Verification section, skip this step
+
+This step ensures that Docker containers still start, migrations are applied, and API health checks pass after implementation — but only when relevant files were changed.
+
 ### Step 3: Verify claims with evidence
 
 Before proceeding to PR creation:

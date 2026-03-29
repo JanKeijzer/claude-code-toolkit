@@ -473,7 +473,7 @@ Write updated body to `/tmp/tracking-pr-update.md`, then:
 gh pr edit <tracking_pr> --body-file /tmp/tracking-pr-update.md
 ```
 
-## Phase Final: Wrap-up
+## Phase Final: Verification & Wrap-up
 
 **CRITICAL: NEVER merge the tracking PR. NEVER close the parent issue. NEVER push to main or develop directly. The tracking PR stays as a draft for the user to review and merge manually.**
 
@@ -488,11 +488,55 @@ npm run validate:all
 
 If validation fails, fix issues and commit directly to the feature branch.
 
-### Step 2: Sync Closes statements
+### Step 2: Runtime verification
+
+Check the project's CLAUDE.md for an **Integration Verification** section. If it exists, use its configuration. Otherwise, use auto-discovery.
+
+**Container health check:**
+```bash
+~/.claude/bin/docker-health-check.sh [project-dir] [--filter PREFIX] [--timeout SECS]
+```
+
+If containers are down or unhealthy:
+1. Run the project's rebuild command (from Integration Verification config) or `docker compose up -d`
+2. Wait 15 seconds, then re-run the health check
+3. After 1 failed retry: report the failure but continue to the next check
+
+**API smoke test:**
+```bash
+~/.claude/bin/smoke-test.sh [base-url] [--health-token TOKEN]
+```
+
+**Migration check (if alembic detected):**
+- Run `docker exec <api-container> alembic current` and compare with `alembic heads`
+- If migrations are pending: run the project's migrate command, then re-check
+
+Skip any check that is not applicable (no compose file, no running containers, no alembic).
+
+### Step 3: Full test suite
+
+Run the full test suite (not scoped — this is the one place where the full suite runs):
+
+```bash
+~/.claude/bin/project-test.sh
+```
+
+If tests fail: attempt to fix on the feature branch, commit, and retry once.
+
+### Step 4: Browser smoke test (optional)
+
+**Only if Playwright MCP tools (`mcp__playwright__*`) are available.**
+
+1. Navigate to the frontend URL (from Integration Verification config or try common ports: 3000, 5173, 8080)
+2. Take a screenshot with `mcp__playwright__browser_take_screenshot`
+3. Check `mcp__playwright__browser_console_messages` for errors
+4. Report results as WARNING only — do not block on browser test failures
+
+### Step 5: Sync Closes statements
 
 Ensure all completed sub-issue numbers are in the tracking PR body as `Closes #<N>` statements. Failed and skipped issues should NOT have Closes statements.
 
-### Step 3: Show summary
+### Step 6: Show summary
 
 Display a final report:
 
@@ -507,6 +551,15 @@ Display a final report:
 | 3 | #XX — Title | audit | ⚠️ WARNINGS | 5 findings, 1 critical |
 | 4 | #XX — Title | impl | ❌ Failed → Bug #ZZ | - |
 | 5 | #XX — Title | impl | ⏭️ Skipped (depends on #XX) | - |
+
+### Verification
+| Check | Status | Details |
+|-------|--------|---------|
+| Containers | PASS/WARN/FAIL/SKIP | X/Y healthy |
+| API Health | PASS/WARN/FAIL/SKIP | endpoints summary |
+| Migrations | PASS/WARN/FAIL/SKIP | current vs head |
+| Test Suite | PASS/FAIL | X/Y passed |
+| Browser | PASS/WARN/FAIL/SKIP | console errors, screenshot |
 
 ### Statistics
 - ✅ Implemented: X of Y
