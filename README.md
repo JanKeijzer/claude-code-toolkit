@@ -4,13 +4,14 @@ A collection of [Claude Code](https://docs.anthropic.com/en/docs/claude-code) sk
 
 ## Philosophy
 
-This toolkit separates concerns into three layers:
+This toolkit separates concerns into four layers:
 
 - **Skills** define **procedures** — the steps to follow when performing a task (e.g., how to implement an issue, how to decompose work)
 - **Agents** define **constrained roles** — specialized sub-agents with restricted tool access for specific domains (e.g., read-only infrastructure analysis, deployment-scoped automation)
-- **CLAUDE.md** defines **policies** — the standards and conventions that apply across all work (e.g., test quality, code quality, communication preferences)
+- **Rules** define **contextual policies** — standards that load only when relevant files are being edited (e.g., test quality rules load only for test files, documentation standards only for .md files)
+- **CLAUDE.md** defines **global policies** — the standards and conventions that apply to every conversation (e.g., permission workarounds, code quality, communication preferences)
 
-Skills and agents reference policies from CLAUDE.md rather than duplicating them.
+Rules keep the global CLAUDE.md lean by moving context-specific instructions out of the always-loaded file. Skills and agents reference policies from CLAUDE.md and rules rather than duplicating them.
 
 ## Installation
 
