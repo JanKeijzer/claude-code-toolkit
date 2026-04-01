@@ -37,6 +37,7 @@ Deze scripts:
 
 - If ANY verification fails, STOP and reassess
 - DRY: check if similar logic already exists before implementing; create shared functions instead of duplicating
+- SOLID: single responsibility per class/module, open for extension but closed for modification, depend on abstractions not concretions. Apply pragmatically — don't over-engineer for hypothetical future requirements
 - No magic strings/numbers: use constants, enums, or configuration for all business logic values
 - Remove obsolete code always. Never keep old files "just in case"
 - Always read a model/class file before assuming its attributes
